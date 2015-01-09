@@ -1,0 +1,158 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "OpenITIL, OpenCore and OpenAPI (Self Made Projects - Closed Source Until Completion",
+
+  "Resources" : {
+    "openapidb" : {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+        "DBName" : "openapidb",
+        "AllocatedStorage" : "5",
+        "DBInstanceClass" : "db.t2.small",
+        "Engine" : "MySQL",
+        "MasterUsername" : "ktechmidas",
+        "MasterUserPassword" : "xxxxx"
+      },
+      "DeletionPolicy" : "Snapshot"
+    },
+  "openapi": {
+      "Type": "AWS::ElasticBeanstalk::Application",
+      "Properties": {
+        "Description": "OpenAPI Core Application"
+      }
+    },
+    "022": {
+      "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+      "Properties": {
+        "ApplicationName": { "Ref":"openapi" },
+        "Description": "OpenAPI Core Application",
+        "SourceBundle": {
+          "S3Bucket": "backup.ktechmidas",
+          "S3Key": "openapi.zip"
+        }
+      }
+    },
+    "openapiConfigurationTemplate": {
+      "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+      "Properties": {
+        "ApplicationName": { "Ref": "openapi" },
+        "Description": "OpenAPI Core Application",
+        "OptionSettings": [
+          {
+            "Namespace": "aws:autoscaling:asg",
+            "OptionName": "MinSize",
+            "Value": "1"
+          },
+          {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "SecurityGroups",
+            "Value": "openitil"
+          },
+	{
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "EC2KeyName",
+            "Value": "docker"
+          },
+
+          {
+            "Namespace": "aws:autoscaling:asg",
+            "OptionName": "MaxSize",
+            "Value": "1"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:environment",
+            "OptionName": "EnvironmentType",
+            "Value": "SingleInstance"
+          },
+		  {
+          "Namespace": "aws:elasticbeanstalk:application:environment",
+          "OptionName": "PARAM1",
+          "Value": { "Fn::GetAtt": ["openapidb", "Endpoint.Address"] }
+		  }
+        ],
+        "SolutionStackName": "64bit Amazon Linux 2014.09 v1.0.9 running PHP 5.5"
+      }
+    },
+    "openapiEnvironment": {
+      "Type": "AWS::ElasticBeanstalk::Environment",
+      "Properties": {
+        "ApplicationName": { "Ref": "openapi" },
+        "Description": "AWS ElasticBeanstalk Sample Environment",
+        "EnvironmentName": "openapi-dev",
+	"TemplateName": { "Ref": "openapiConfigurationTemplate" },
+        "VersionLabel": { "Ref": "022" }
+      }
+    },
+      "openitil": {
+      "Type": "AWS::ElasticBeanstalk::Application",
+      "Properties": {
+        "Description": "Openitil Core Application"
+      }
+    },
+    "122": {
+      "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+      "Properties": {
+        "ApplicationName": { "Ref":"openitil" },
+        "Description": "Openitil Core Application",
+        "SourceBundle": {
+          "S3Bucket": "backup.ktechmidas",
+          "S3Key": "openitil.zip"
+        }
+      }
+    },
+    "openitilConfigurationTemplate": {
+      "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+      "Properties": {
+        "ApplicationName": { "Ref": "openitil" },
+        "Description": "Openitil Core Application",
+	"OptionSettings": [
+          {
+            "Namespace": "aws:autoscaling:asg",
+            "OptionName": "MinSize",
+            "Value": "1"
+          },
+	  {
+	    "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "SecurityGroups",
+            "Value": "openitil"
+	  },
+	  {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "EC2KeyName",
+            "Value": "docker"
+          },
+
+          {
+            "Namespace": "aws:autoscaling:asg",
+            "OptionName": "MaxSize",
+            "Value": "1"
+          },
+          {
+            "Namespace": "aws:elasticbeanstalk:environment",
+            "OptionName": "EnvironmentType",
+            "Value": "SingleInstance"
+          }
+        ],
+        "SolutionStackName": "64bit Amazon Linux 2014.09 v1.0.9 running PHP 5.5"
+      }
+    },
+    "openitilEnvironment": {
+      "Type": "AWS::ElasticBeanstalk::Environment",
+      "Properties": {
+        "ApplicationName": { "Ref": "openitil" },
+        "Description": "AWS ElasticBeanstalk Sample Environment",
+	"EnvironmentName": "openitil-dev",
+        "TemplateName": { "Ref": "openitilConfigurationTemplate" },
+		"VersionLabel": { "Ref": "122" }
+      }
+    }
+  },
+
+  "Outputs" : {
+    "MySQLCon": {
+      "Description" : "MySQL Connection String",
+      "Value" : { "Fn::GetAtt": [ "openapidb", "Endpoint.Address" ] }
+    }
+  }
+}

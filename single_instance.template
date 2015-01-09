@@ -1,0 +1,29 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "instanceid2558136": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "FALSE",
+        "ImageId": "ami-1218ac65",
+        "InstanceType": "t2.micro",
+        "Monitoring": "false",
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "DeviceIndex": 0,
+            "SubnetId": "subnet-6b39e30e",
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "172.31.31.30",
+                "Primary": "true"
+              }
+            ],
+            "AssociatePublicIpAddress": "true"
+          }
+        ]
+      }
+    }
+},
+  "Description": "Windows"
+}
